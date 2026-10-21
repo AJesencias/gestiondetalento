@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión del Talento Humano - Capítulo 2 (Clase Interactiva)</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      background-color: #080c14; 
+      font-family: 'Inter', sans-serif; 
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Tabs */
+    .tab-btn {
+      transition: all 0.3s ease;
+      border-radius: 12px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #0284c7 0%, #3b82f6 100%);
+      color: white;
+      box-shadow: 0 10px 20px -5px rgba(2, 132, 199, 0.5);
+    }
+
+    /* Presentation Wrapper */
+    .presentation-wrapper {
+      width: 100%;
+      height: 720px;
+      position: relative;
+      background: #0b1329;
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      transform: scale(0.97);
+      padding: 36px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+      z-index: 10;
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .img-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .img-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .img-card:hover img {
+      transform: scale(1.08);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .bg-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(8, 12, 24, 0.92) 0%, rgba(15, 23, 42, 0.82) 50%, rgba(2, 6, 23, 0.92) 100%);
+      z-index: 1;
+    }
+
+    .slide-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Controls Overlay */
+    .controls-bar {
+      position: absolute;
+      bottom: 20px;
+      right: 28px;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.92);
+      padding: 8px 18px;
+      border-radius: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #1e293b;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-btn:hover {
+      background: #0284c7;
+      transform: scale(1.1);
+    }
+
+    .progress-bar-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      z-index: 50;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Quiz Option Styling */
+    .quiz-option {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .quiz-option:hover {
+      transform: translateY(-2px);
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+    }
+    .quiz-option.correct {
+      background: rgba(34, 197, 94, 0.25) !important;
+      border-color: #22c55e !important;
+      color: #86efac !important;
+    }
+    .quiz-option.wrong {
+      background: rgba(239, 68, 68, 0.25) !important;
+      border-color: #ef4444 !important;
+      color: #fca5a5 !important;
+    }
+
+    /* Memory Card Game Styling */
+    .memory-card {
+      perspective: 1000px;
+      cursor: pointer;
+    }
+    .memory-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .memory-card.flipped .memory-card-inner {
+      transform: rotateY(180deg);
+    }
+    .memory-card-front, .memory-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .memory-card-front {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #38bdf8;
+      font-size: 2rem;
+    }
+    .memory-card-back {
+      background: linear-gradient(135deg, #0284c7 0%, #1e1b4b 100%);
+      color: white;
+      transform: rotateY(180deg);
+    }
+    .memory-card.matched .memory-card-inner {
+      transform: rotateY(180deg);
+    }
+    .memory-card.matched .memory-card-back {
+      background: linear-gradient(135deg, #059669 0%, #064e3b 100%);
+      border-color: #34d399;
+    }
+
+    /* Flip Animation for Flashcards */
+    .flashcard {
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .flashcard.flipped {
+      transform: rotateY(180deg);
+    }
+    .flashcard-front, .flashcard-back {
+      backface-visibility: hidden;
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 32px;
+    }
+    .flashcard-back {
+      transform: rotateY(180deg);
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+  </style>
+</head>
+<body class="p-2 sm:p-4">
+
+<div class="app-container">
+  
+  <!-- Header Navbar -->
+  <header class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 glass-card p-4">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-sky-500/30">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold text-white font-['Plus_Jakarta_Sans'] leading-tight">
+          Gestión del Talento Humano <span class="text-sky-400 font-normal">| Cap. 2</span>
+        </h1>
+        <p class="text-xs text-slate-400">Presentación Académica &amp; Módulo Interactivo de Aprendizaje (Grupo #2)</p>
+      </div>
+    </div>
+
+    <!-- Mode Selector Tabs -->
+    <div class="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-700/60 overflow-x-auto max-w-full">
+      <button onclick="switchMode('presentation')" id="tab-presentation" class="tab-btn active px-4 py-2 text-xs font-semibold flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-desktop text-sky-300"></i> Diapositivas
+      </button>
+      <button onclick="switchMode('quiz')" id="tab-quiz" class="tab-btn px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-gamepad text-amber-400"></i> Quizt en Vivo
+      </button>
+      <button onclick="switchMode('memory')" id="tab-memory" class="tab-btn px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-brain text-purple-400"></i> Juego de Memoria
+      </button>
+      <button onclick="switchMode('flashcards')" id="tab-flashcards" class="tab-btn px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-layer-group text-emerald-400"></i> Repaso Rápido
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN DISPLAY AREA -->
+  <main class="flex-1 relative">
+
+    <!-- MODE 1: PRESENTATION SLIDES -->
+    <div id="mode-presentation" class="block">
+      <div class="presentation-wrapper" id="presentation">
+
+        <!-- SLIDE 1: PORTADA PRINCIPAL -->
+        <div class="slide active" style="background-image: url('http://googleusercontent.com/image_collection/image_retrieval/812070988382640772_0');">
+          <div class="bg-overlay"></div>
+          <div class="slide-content">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="badge bg-sky-500/30 text-sky-300 border border-sky-400/50 mb-3 shadow-lg shadow-sky-500/20">
+                  <i class="fa-solid fa-graduation-cap"></i> Exposición Universitaria · Cap. 2
+                </span>
+                <h1 class="font-['Plus_Jakarta_Sans'] text-3xl lg:text-4xl font-extrabold text-white leading-tight max-w-3xl drop-shadow-md">
+                  Gestión del Talento Humano en un Ambiente Dinámico y Competitivo
+                </h1>
+                <p class="text-sky-300 text-base mt-2 font-semibold">Autor: Idalberto Chiavenato — Análisis Integral de Clase</p>
+              </div>
+              <div class="glass-card px-5 py-3 text-right border-l-4 border-l-sky-400 hidden sm:block">
+                <p class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Exposición Grupal</p>
+                <p class="text-xl font-bold text-white mt-1"><i class="fa-solid fa-users text-sky-400 mr-2"></i>Grupo #2</p>
+              </div>
+            </div>
+
+            <!-- Integrantes Grid -->
+            <div>
+              <p class="text-xs font-bold text-sky-300 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-user-graduate"></i> Equipo Expositor &amp; Asignación de Sub-Temas:
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="glass-card p-3 border-l-4 border-l-sky-400 hover:border-sky-300 transition-all bg-slate-900/90">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] font-bold text-sky-300 bg-sky-950 px-2 py-0.5 rounded border border-sky-500/30">SUB-TEMA 1</span>
+                    <span class="text-[11px] text-sky-400 font-mono font-bold">25-MAEN-1-009</span>
+                  </div>
+                  <h3 class="text-sm font-bold text-white">Cristine Medrano</h3>
+                  <p class="text-[11px] text-slate-300 line-clamp-1">Cambios y transformaciones mundiales</p>
+                </div>
+
+                <div class="glass-card p-3 border-l-4 border-l-sky-400 hover:border-sky-300 transition-all bg-slate-900/90">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] font-bold text-sky-300 bg-sky-950 px-2 py-0.5 rounded border border-sky-500/30">SUB-TEMA 2</span>
+                    <span class="text-[11px] text-sky-400 font-mono font-bold">23-MCTN-1-015</span>
+                  </div>
+                  <h3 class="text-sm font-bold text-white">Jeremy Mejía</h3>
+                  <p class="text-[11px] text-slate-300 line-clamp-1">Desafíos del mundo actual</p>
+                </div>
+
+                <div class="glass-card p-3 border-l-4 border-l-sky-400 hover:border-sky-300 transition-all bg-slate-900/90">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] font-bold text-sky-300 bg-sky-950 px-2 py-0.5 rounded border border-sky-500/30">SUB-TEMA 3</span>
+                    <span class="text-[11px] text-sky-400 font-mono font-bold">25-SCTN-1-030</span>
+                  </div>
+                  <h3 class="text-sm font-bold text-white">Ashly Santana</h3>
+                  <p class="text-[11px] text-slate-300 line-clamp-1">Nuevos papeles de la GTH</p>
+                </div>
+
+                <div class="glass-card p-3 border-l-4 border-l-indigo-400 hover:border-indigo-300 transition-all bg-slate-900/90">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] font-bold text-indigo-300 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-500/30">SUB-TEMA 4</span>
+                    <span class="text-[11px] text-indigo-400 font-mono font-bold">15-SCTN-1-100</span>
+                  </div>
+                  <h3 class="text-sm font-bold text-white">Leddy Batista</h3>
+                  <p class="text-[11px] text-slate-300 line-clamp-1">Capital Intelectual y Humano</p>
+                </div>
+
+                <div class="glass-card p-3 border-l-4 border-l-indigo-400 hover:border-indigo-300 transition-all bg-slate-900/90">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] font-bold text-indigo-300 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-500/30">SUB-TEMA 5</span>
+                    <span class="text-[11px] text-indigo-400 font-mono font-bold">25-SCTN-1-011</span>
+                  </div>
+                  <h3 class="text-sm font-bold text-white">Harlin De La Cruz</h3>
+                  <p class="text-[11px] text-slate-300 line-clamp-1">¿Para quién debe trabajar la GTH?</p>
+                </div>
+
+                <div class="glass-card p-3 border-l-4 border-l-cyan-400 hover:border-cyan-300 transition-all bg-slate-900/90">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] font-bold text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/30">SUB-TEMAS 6 y 7</span>
+                    <span class="text-[11px] text-cyan-400 font-mono font-bold">25-SCTN-1-007</span>
+                  </div>
+                  <h3 class="text-sm font-bold text-white">Katty Magallanes Selmo</h3>
+                  <p class="text-[11px] text-slate-300 line-clamp-1">Objeto y Propuesta de Valor GTH</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 2: SUB-TEMA 1 (CRISTINE MEDRANO) -->
+        <div class="slide" style="background-image: url('http://googleusercontent.com/image_collection/image_retrieval/5986068255774017683_0');">
+          <div class="bg-overlay"></div>
+          <div class="slide-content">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-700/80">
+              <div>
+                <span class="badge bg-sky-500/30 text-sky-300 border border-sky-400/40">Sub-Tema #1 · Expositora</span>
+                <h2 class="text-2xl font-bold text-white mt-1">1. Los cambios y las transformaciones en el escenario mundial</h2>
+              </div>
+              <div class="text-right glass-card px-4 py-1.5 border-l-4 border-l-sky-400">
+                <p class="text-sm font-bold text-sky-300">Cristine Medrano</p>
+                <p class="text-xs text-slate-300 font-mono">25-MAEN-1-009</p>
+              </div>
+            </div>
+
+            <!-- Content Grid with Visual Card -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+              <div class="glass-card p-5 border-t-4 border-t-sky-400 flex flex-col justify-between">
+                <div>
+                  <div class="w-12 h-12 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-xl font-bold mb-3 border border-sky-500/30">
+                    <i class="fa-solid fa-earth-americas"></i>
+                  </div>
+                  <h3 class="text-base font-bold text-white mb-2">Globalización Avanzada</h3>
+                  <p class="text-slate-300 text-xs leading-relaxed">
+                    Apertura de fronteras comerciales e interconexión digital que permite transacciones y colaboración global en tiempo real.
+                  </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-sky-300 font-semibold">
+                  <i class="fa-solid fa-arrow-trend-up mr-1"></i> Impacto: Mercados sin fronteras
+                </div>
+              </div>
+
+              <div class="glass-card p-5 border-t-4 border-t-indigo-400 flex flex-col justify-between">
+                <div>
+                  <div class="w-12 h-12 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl font-bold mb-3 border border-indigo-500/30">
+                    <i class="fa-solid fa-microchip"></i>
+                  </div>
+                  <h3 class="text-base font-bold text-white mb-2">Era del Conocimiento</h3>
+                  <p class="text-slate-300 text-xs leading-relaxed">
+                    Sustitución del trabajo físico industrial por el capital mental, la digitalización y el procesamiento intensivo de información.
+                  </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-indigo-300 font-semibold">
+                  <i class="fa-solid fa-brain mr-1"></i> Valor: Capital intelecto
+                </div>
+              </div>
+
+              <!-- Visual Image Card -->
+              <div class="img-card h-full min-h-[220px] relative flex flex-col justify-end p-4">
+                <img src="http://googleusercontent.com/image_collection/image_retrieval/5986068255774017683_0" alt="Global technology transformation">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                <div class="relative z-10">
+                  <span class="badge bg-sky-600 text-white text-[10px] mb-1">Transformación Digital</span>
+                  <p class="text-xs text-white font-bold">"El conocimiento es la nueva divisa de la economía mundial."</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card p-3 bg-sky-950/50 border border-sky-500/40 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-lightbulb"></i>
+              </div>
+              <p class="text-xs text-sky-200">
+                <b>Síntesis de Exposición:</b> Las organizaciones modernas deben pasar de estructuras burocráticas rígidas a redes orgánicas y adaptativas.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 3: SUB-TEMA 2 (JEREMY MEJÍA) -->
+        <div class="slide" style="background-image: url('http://googleusercontent.com/image_collection/image_retrieval/812070988382640772_0');">
+          <div class="bg-overlay"></div>
+          <div class="slide-content">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-700/80">
+              <div>
+                <span class="badge bg-sky-500/30 text-sky-300 border border-sky-400/40">Sub-Tema #2 · Expositor</span>
+                <h2 class="text-2xl font-bold text-white mt-1">2. Los nuevos y cambiantes desafíos del mundo actual</h2>
+              </div>
+              <div class="text-right glass-card px-4 py-1.5 border-l-4 border-l-sky-400">
+                <p class="text-sm font-bold text-sky-300">Jeremy Mejía</p>
+                <p class="text-xs text-slate-300 font-mono">23-MCTN-1-015</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-auto">
+              <!-- Column 1 & 2 Cards -->
+              <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="glass-card p-4 flex gap-3 items-start border-l-4 border-l-sky-400">
+                  <div class="p-2.5 bg-sky-500/20 rounded-xl text-sky-400 text-xl border border-sky-500/30">
+                    <i class="fa-solid fa-users-line"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-white mb-1">Diversidad Generacional</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">
+                      Convivencia de múltiples generaciones (Baby Boomers, Gen X, Millennials, Gen Z) con prioridades distintas.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="glass-card p-4 flex gap-3 items-start border-l-4 border-l-indigo-400">
+                  <div class="p-2.5 bg-indigo-500/20 rounded-xl text-indigo-400 text-xl border border-indigo-500/30">
+                    <i class="fa-solid fa-laptop-house"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-white mb-1">Trabajo Híbrido</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">
+                      Modelos de trabajo flexibles que redefinen el compromiso y la evaluación basada en resultados.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="glass-card p-4 flex gap-3 items-start border-l-4 border-l-purple-400">
+                  <div class="p-2.5 bg-purple-500/20 rounded-xl text-purple-400 text-xl border border-purple-500/30">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-white mb-1">Salud Mental y Bienestar</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">
+                      Enfoque en la prevención del desgaste laboral (burnout) y el equilibrio entre vida laboral y personal.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="glass-card p-4 flex gap-3 items-start border-l-4 border-l-emerald-400">
+                  <div class="p-2.5 bg-emerald-500/20 rounded-xl text-emerald-400 text-xl border border-emerald-500/30">
+                    <i class="fa-solid fa-rotate-right"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-white mb-1">Upskilling Continuous</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">
+                      Re-capacitación continua para contrarrestar la rápida obsolescencia del conocimiento técnico.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Column 3 Image Visual -->
+              <div class="img-card h-full min-h-[220px] relative flex flex-col justify-end p-4">
+                <img src="http://googleusercontent.com/image_collection/image_retrieval/812070988382640772_0" alt="Diverse corporate team">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
+                <div class="relative z-10">
+                  <span class="badge bg-purple-600 text-white text-[10px] mb-1">Fuerza Laboral Actual</span>
+                  <p class="text-xs text-white font-bold">Gestión de personas en un entorno dinámico y heterogéneo.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-xs text-slate-300 text-center glass-card p-2 border border-slate-700">
+              Desafío Principal: <span class="text-sky-300 font-semibold">Convertir la incertidumbre del entorno en oportunidades de desarrollo profesional.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 4: SUB-TEMA 3 (ASHLY SANTANA) -->
+        <div class="slide" style="background-image: url('http://googleusercontent.com/image_collection/image_retrieval/7054954373308787862_0');">
+          <div class="bg-overlay"></div>
+          <div class="slide-content">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-700/80">
+              <div>
+                <span class="badge bg-sky-500/30 text-sky-300 border border-sky-400/40">Sub-Tema #3 · Expositora</span>
+                <h2 class="text-2xl font-bold text-white mt-1">3. Los nuevos papeles de la gestión del talento humano</h2>
+              </div>
+              <div class="text-right glass-card px-4 py-1.5 border-l-4 border-l-sky-400">
+                <p class="text-sm font-bold text-sky-300">Ashly Santana</p>
+                <p class="text-xs text-slate-300 font-mono">25-SCTN-1-030</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-auto">
+              <div class="glass-card p-4 text-center flex flex-col items-center justify-between border-t-4 border-t-sky-400">
+                <div class="w-12 h-12 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xl mb-2 border border-sky-500/30">
+                  <i class="fa-solid fa-chess-knight"></i>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-sky-400 uppercase tracking-wider">Rol #1</span>
+                  <h3 class="text-sm font-bold text-white mt-1 mb-1">Socio Estratégico</h3>
+                  <p class="text-[11px] text-slate-300 leading-tight">Alinea las políticas de talento con la estrategia general del negocio.</p>
+                </div>
+                <div class="w-full mt-3 pt-2 border-t border-slate-800 text-[10px] text-sky-300">Orientado a Resultados</div>
+              </div>
+
+              <div class="glass-card p-4 text-center flex flex-col items-center justify-between border-t-4 border-t-indigo-400">
+                <div class="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-2 border border-indigo-500/30">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Rol #2</span>
+                  <h3 class="text-sm font-bold text-white mt-1 mb-1">Agente de Cambio</h3>
+                  <p class="text-[11px] text-slate-300 leading-tight">Facilita la transformación cultural y la adaptación continua.</p>
+                </div>
+                <div class="w-full mt-3 pt-2 border-t border-slate-800 text-[10px] text-indigo-300">Innovación Cultural</div>
+              </div>
+
+              <div class="glass-card p-4 text-center flex flex-col items-center justify-between border-t-4 border-t-emerald-400">
+                <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-2 border border-emerald-500/30">
+                  <i class="fa-solid fa-hand-holding-heart"></i>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Rol #3</span>
+                  <h3 class="text-sm font-bold text-white mt-1 mb-1">Defensor del Empleado</h3>
+                  <p class="text-[11px] text-slate-300 leading-tight">Vela por el bienestar, la motivación y el compromiso laboral.</p>
+                </div>
+                <div class="w-full mt-3 pt-2 border-t border-slate-800 text-[10px] text-emerald-300">Enfoque Humano</div>
+              </div>
+
+              <div class="glass-card p-4 text-center flex flex-col items-center justify-between border-t-4 border-t-amber-400">
+                <div class="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-2 border border-amber-500/30">
+                  <i class="fa-solid fa-gears"></i>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Rol #4</span>
+                  <h3 class="text-sm font-bold text-white mt-1 mb-1">Experto Administrativo</h3>
+                  <p class="text-[11px] text-slate-300 leading-tight">Optimiza los procesos de personal con máxima eficiencia.</p>
+                </div>
+                <div class="w-full mt-3 pt-2 border-t border-slate-800 text-[10px] text-amber-300">Procesos Eficientes</div>
+              </div>
+            </div>
+
+            <div class="glass-card p-3 border border-slate-700 text-center text-xs text-slate-300">
+              <b>Matriz de Ulrich &amp; Chiavenato:</b> La GTH evoluciona de una función operativa tradicional a un motor integrador de valor de negocio.
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 5: SUB-TEMA 4 (LEDDY BATISTA) -->
+        <div class="slide" style="background-image: url('http://googleusercontent.com/image_collection/image_retrieval/13912120923243480049_0');">
+          <div class="bg-overlay"></div>
+          <div class="slide-content">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-700/80">
+              <div>
+                <span class="badge bg-indigo-500/30 text-indigo-300 border border-indigo-400/40">Sub-Tema #4 · Expositora</span>
+                <h2 class="text-2xl font-bold text-white mt-1">4. Administración del capital intelectual y humano</h2>
+              </div>
+              <div class="text-right glass-card px-4 py-1.5 border-l-4 border-l-indigo-400">
+                <p class="text-sm font-bold text-indigo-300">Leddy Batista</p>
+                <p class="text-xs text-slate-300 font-mono">15-SCTN-1-100</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 my-auto">
+              <!-- Card 1 -->
+              <div class="glass-card p-4 border-t-4 border-t-sky-400">
+                <div class="text-sky-400 text-2xl mb-2"><i class="fa-solid fa-brain"></i></div>
+                <h3 class="text-sm font-bold text-white mb-1">1. Capital Humano</h3>
+                <p class="text-slate-300 text-xs mb-3">Conocimientos, habilidades, actitudes y capacidad de innovación individual.</p>
+                <span class="text-[10px] font-bold bg-sky-950 text-sky-300 px-2 py-1 rounded border border-sky-500/30">Talento de las Personas</span>
+              </div>
+
+              <!-- Card 2 -->
+              <div class="glass-card p-4 border-t-4 border-t-indigo-400">
+                <div class="text-indigo-400 text-2xl mb-2"><i class="fa-solid fa-sitemap"></i></div>
+                <h3 class="text-sm font-bold text-white mb-1">2. Capital Estructural</h3>
+                <p class="text-slate-300 text-xs mb-3">Sistemas, patentes, marcas, tecnología y procesos propios de la empresa.</p>
+                <span class="text-[10px] font-bold bg-indigo-950 text-indigo-300 px-2 py-1 rounded border border-indigo-500/30">Propiedad Organizacional</span>
+              </div>
+
+              <!-- Card 3 -->
+              <div class="glass-card p-4 border-t-4 border-t-cyan-400">
+                <div class="text-cyan-400 text-2xl mb-2"><i class="fa-solid fa-handshake"></i></div>
+                <h3 class="text-sm font-bold text-white mb-1">3. Capital Relacional</h3>
+                <p class="text-slate-300 text-xs mb-3">Relaciones con clientes, proveedores, marca e imagen corporativa.</p>
+                <span class="text-[10px] font-bold bg-cyan-950 text-cyan-300 px-2 py-1 rounded border border-cyan-500/30">Redes con el Mercado</span>
+              </div>
+
+              <!-- Image Visual Card -->
+              <div class="img-card h-full min-h-[180px] relative flex flex-col justify-end p-3">
+                <img src="http://googleusercontent.com/image_collection/image_retrieval/13912120923243480049_0" alt="Intellectual Capital Visual">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
+                <div class="relative z-10">
+                  <span class="badge bg-indigo-600 text-white text-[9px] mb-1">Capital Intelectual</span>
+                  <p class="text-[11px] text-white font-bold leading-tight">Activo intangible más valioso en la era digital.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card p-3 border border-indigo-500/40 bg-indigo-950/40 text-center">
+              <p class="text-xs text-indigo-200">
+                <b>Ecuación Teórica:</b> Capital Intelectual = Capital Humano + Capital Estructural + Capital Relacional
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 6: SUB-TEMA 5 (HARLIN DE LA CRUZ) -->
+        <div class="slide" style="background-image: url('http://googleusercontent.com/image_collection/image_retrieval/10850037264276490055_0');">
+          <div class="bg-overlay"></div>
+          <div class="slide-content">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-700/80">
+              <div>
+                <span class="badge bg-indigo-500/30 text-indigo-300 border border-indigo-400/40">Sub-Tema #5 · Expositor</span>
+                <h2 class="text-2xl font-bold text-white mt-1">5. ¿Para quién debe trabajar la GTH? (Grupos de Interés)</h2>
+              </div>
+              <div class="text-right glass-card px-4 py-1.5 border-l-4 border-l-indigo-400">
+                <p class="text-sm font-bold text-indigo-300">Harlin De La Cruz</p>
+                <p class="text-xs text-slate-300 font-mono">25-SCTN-1-011</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-auto">
+              <div class="glass-card p-4 flex gap-3 items-center border-l-4 border-l-amber-400">
+                <div class="p-3 bg-amber-500/20 text-amber-400 rounded-xl text-xl shrink-0 border border-amber-500/30"><i class="fa-solid fa-coins"></i></div>
+                <div>
+                  <h3 class="text-sm font-bold text-white">1. Inversionistas / Accionistas</h3>
+                  <p class="text-[11px] font-bold text-amber-400">Aportan: Capital | Esperan: Retorno Financiero (ROI)</p>
+                  <p class="text-xs text-slate-300 mt-1">La GTH genera productividad y maximiza el valor patrimonial.</p>
+                </div>
+              </div>
+
+              <div class="glass-card p-4 flex gap-3 items-center border-l-4 border-l-sky-400">
+                <div class="p-3 bg-sky-500/20 text-sky-400 rounded-xl text-xl shrink-0 border border-sky-500/30"><i class="fa-solid fa-id-card-clip"></i></div>
+                <div>
+                  <h3 class="text-sm font-bold text-white">2. Colaboradores / Empleados</h3>
+                  <p class="text-[11px] font-bold text-sky-400">Aportan: Talento y Trabajo | Esperan: Desarrollo y Remuneración</p>
+                  <p class="text-xs text-slate-300 mt-1">La GTH ofrece reconocimiento, crecimiento y calidad de vida.</p>
+                </div>
+              </div>
+
+              <div class="glass-card p-4 flex gap-3 items-center border-l-4 border-l-emerald-400">
+                <div class="p-3 bg-emerald-500/20 text-emerald-400 rounded-xl text-xl shrink-0 border border-emerald-500/30"><i class="fa-solid fa-smile-beam"></i></div>
+                <div>
+                  <h3 class="text-sm font-bold text-white">3. Clientes y Consumidores</h3>
+                  <p class="text-[11px] font-bold text-emerald-400">Aportan: Compras | Esperan: Calidad e Innovación</p>
+                  <p class="text-xs text-slate-300 mt-1">La GTH capacita equipos enfocados en la satisfacción del cliente.</p>
+                </div>
+              </div>
+
+              <div class="glass-card p-4 flex gap-3 items-center border-l-4 border-l-purple-400">
+                <div class="p-3 bg-purple-500/20 text-purple-400 rounded-xl text-xl shrink-0 border border-purple-500/30"><i class="fa-solid fa-building-columns"></i></div>
+                <div>
+                  <h3 class="text-sm font-bold text-white">4. Sociedad y Comunidad</h3>
+                  <p class="text-[11px] font-bold text-purple-400">Aportan: Entorno | Esperan: Responsabilidad Social</p>
+                  <p class="text-xs text-slate-300 mt-1">La GTH promueve la ética, inclusión y sostenibilidad ambiental.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card p-3 border border-slate-700 text-center text-xs text-slate-300">
+              <b>Equilibrio Organizacional:</b> La GTH es la encargada de alinearse para beneficiar equitativamente a todos los grupos de interés.
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 7: SUB-TEMAS 6 Y 7 (KATTY MAGALLANES SELMO) -->
+        <div class="slide" style="background-image: url('http://googleusercontent.com/image_collection/image_retrieval/7072031092880552499_0');">
+          <div class="bg-overlay"></div>
+          <div class="slide-content">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-700/80">
+              <div>
+                <span class="badge bg-cyan-500/30 text-cyan-300 border border-cyan-400/40">Sub-Temas #6 y #7 · Expositora</span>
+                <h2 class="text-2xl font-bold text-white mt-1">6. Objeto y 7. Propuesta de Valor de la GTH</h2>
+              </div>
+              <div class="text-right glass-card px-4 py-1.5 border-l-4 border-l-cyan-400">
+                <p class="text-sm font-bold text-cyan-300">Katty Magallanes Selmo</p>
+                <p class="text-xs text-slate-300 font-mono">25-SCTN-1-007</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+              <!-- Subtema 6 Card -->
+              <div class="glass-card p-5 border-l-4 border-l-cyan-400 flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-3">
+                    <span class="text-[10px] font-bold text-cyan-300 bg-cyan-950 px-3 py-1 rounded-full border border-cyan-500/30">SUB-TEMA 6</span>
+                    <i class="fa-solid fa-bullseye text-2xl text-cyan-400"></i>
+                  </div>
+                  <h3 class="text-lg font-bold text-white mb-2">¿Cuál es el objeto de la GTH?</h3>
+                  <p class="text-slate-300 text-xs leading-relaxed mb-3">
+                    Construir, enriquecer y desarrollar continuamente el <b>capital humano</b>. Su objetivo principal es atraer, motivar y desarrollar talentos capaces de lograr las metas organizacionales.
+                  </p>
+                </div>
+                <div class="bg-slate-900/90 p-3 rounded-xl border border-cyan-500/30 text-xs text-cyan-200">
+                  <i class="fa-solid fa-circle-check mr-2 text-cyan-400"></i><b>Propósito:</b> Potenciar a las personas como asociados del negocio.
+                </div>
+              </div>
+
+              <!-- Subtema 7 Card -->
+              <div class="glass-card p-5 border-l-4 border-l-sky-400 flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-3">
+                    <span class="text-[10px] font-bold text-sky-300 bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">SUB-TEMA 7</span>
+                    <i class="fa-solid fa-gem text-2xl text-sky-400"></i>
+                  </div>
+                  <h3 class="text-lg font-bold text-white mb-2">¿Cuál es la propuesta de valor de la GTH?</h3>
+                  <p class="text-slate-300 text-xs leading-relaxed mb-3">
+                    Generar una <b>ventaja competitiva sostenible</b> a través de la fuerza laboral. Garantiza retornos tangibles construyendo una cultura de alto desempeño alineada con la estrategia de la empresa.
+                  </p>
+                </div>
+                <div class="bg-slate-900/90 p-3 rounded-xl border border-sky-500/30 text-xs text-sky-200">
+                  <i class="fa-solid fa-circle-check mr-2 text-sky-400"></i><b>Propósito:</b> Entregar valor medible y sostenido al negocio.
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center text-xs text-slate-300 glass-card p-2 border border-slate-700">
+              <b>Distinción Fundamental:</b> <span class="text-cyan-300">El Objeto responde al *qué construye* y la Propuesta de Valor al *qué aporta al éxito del negocio*.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 8: RECURSO VIDEO YOUTUBE -->
+        <div class="slide" style="background-image: url('http://googleusercontent.com/image_collection/image_retrieval/15626926260455744341_0');">
+          <div class="bg-overlay"></div>
+          <div class="slide-content">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-700/80">
+              <div>
+                <span class="badge bg-red-500/30 text-red-300 border border-red-500/40">Recurso Multimedia</span>
+                <h2 class="text-2xl font-bold text-white mt-1">Video Educativo: Resumen GTH Idalberto Chiavenato</h2>
+              </div>
+              <div class="flex items-center gap-2 text-red-400 font-bold text-sm bg-slate-900/80 px-4 py-1.5 rounded-xl border border-slate-700">
+                <i class="fa-brands fa-youtube text-2xl"></i> Clase Multimedia
+              </div>
+            </div>
+
+            <div class="my-auto w-full h-[380px] rounded-2xl overflow-hidden glass-card border border-slate-700 shadow-2xl relative">
+              <iframe class="w-full h-full" src="https://www.youtube.com/embed/9SSdP8jzsDA?enablejsapi=1" title="Gestión del Talento Humano Chiavenato" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+
+            <div class="flex justify-between items-center text-xs text-slate-300">
+              <p><i class="fa-solid fa-circle-info mr-1 text-sky-400"></i> Video de apoyo para afianzar los conceptos estudiados en el Capítulo 2.</p>
+              <p class="font-mono text-slate-400 font-bold">Resumen de Clase</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTROLES Y BARRA NAVEGACIÓN -->
+        <div class="controls-bar">
+          <button class="nav-btn" id="prevBtn" title="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+          <span class="text-xs font-bold font-mono text-slate-200 px-2" id="slideCounter">1 / 8</span>
+          <button class="nav-btn" id="nextBtn" title="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE 2: LIVE QUIZ GAME ("QUIZT") -->
+    <div id="mode-quiz" class="hidden">
+      <div class="glass-card p-6 md:p-10 min-h-[600px] flex flex-col justify-between relative overflow-hidden">
+        
+        <!-- Quiz Header -->
+        <div class="flex justify-between items-center pb-4 border-b border-slate-700">
+          <div>
+            <span class="badge bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <i class="fa-solid fa-bolt"></i> Evaluación Interactiva de Clase
+            </span>
+            <h2 class="text-2xl font-bold text-white mt-1" id="quiz-title">Quizt de Competencias: Capítulo 2</h2>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <span class="text-xs text-slate-400 uppercase font-bold">Puntuación</span>
+              <p class="text-2xl font-black text-amber-400 font-mono" id="quiz-score">0</p>
+            </div>
+            <div class="text-right pl-4 border-l border-slate-700">
+              <span class="text-xs text-slate-400 uppercase font-bold">Racha</span>
+              <p class="text-xl font-bold text-emerald-400 font-mono" id="quiz-streak">🔥 0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quiz Container Body -->
+        <div id="quiz-body" class="my-auto py-6">
+          <div class="flex justify-between items-center text-xs text-slate-400 font-mono mb-2">
+            <span id="quiz-question-num">Pregunta 1 de 5</span>
+            <span id="quiz-speaker-tag" class="text-sky-400 font-semibold">Relacionado al Sub-Tema 1</span>
+          </div>
+          <h3 class="text-xl md:text-2xl font-bold text-white mb-6 leading-relaxed" id="quiz-question-text">
+            ¿Cargando pregunta...
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="quiz-options">
+            <!-- Dynamic Options inserted here -->
+          </div>
+
+          <!-- Feedback Box -->
+          <div id="quiz-feedback" class="mt-6 p-4 rounded-xl hidden transition-all">
+            <p id="quiz-feedback-text" class="text-sm font-semibold mb-1"></p>
+            <p id="quiz-explanation" class="text-xs text-slate-300"></p>
+          </div>
+        </div>
+
+        <!-- Quiz Footer Controls -->
+        <div class="flex justify-between items-center pt-4 border-t border-slate-800">
+          <p class="text-xs text-slate-500">Basado en el libro de Idalberto Chiavenato</p>
+          <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden px-6 py-2.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-sky-600/30">
+            Siguiente Pregunta <i class="fa-solid fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+
+        <!-- Quiz Completion Screen -->
+        <div id="quiz-results" class="hidden absolute inset-0 bg-slate-900/95 backdrop-blur-md p-8 flex flex-col items-center justify-center text-center z-50">
+          <div class="w-20 h-20 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-4xl mb-4 border border-amber-500/40">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <h2 class="text-3xl font-extrabold text-white mb-2">¡Quiz Completado!</h2>
+          <p class="text-slate-300 text-sm mb-6">Resultados de tu evaluación en tiempo real:</p>
+          
+          <div class="glass-card p-6 mb-8 w-full max-w-md border-amber-500/30">
+            <p class="text-slate-400 text-xs font-bold uppercase">Puntuación Final</p>
+            <p class="text-5xl font-black text-amber-400 font-mono my-2" id="final-score">0</p>
+            <p class="text-xs text-slate-300" id="final-rating">¡Excelente dominio del Capítulo 2!</p>
+          </div>
+
+          <button onclick="restartQuiz()" class="px-8 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-sky-500/30">
+            <i class="fa-solid fa-rotate-right mr-2"></i> Reiniciar Quiz
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MODE 3: MEMORY MATCHING GAME -->
+    <div id="mode-memory" class="hidden">
+      <div class="glass-card p-6 md:p-8 min-h-[600px] flex flex-col justify-between">
+        <div class="flex justify-between items-center pb-4 border-b border-slate-700">
+          <div>
+            <span class="badge bg-purple-500/20 text-purple-400 border border-purple-500/30">
+              <i class="fa-solid fa-puzzle-piece"></i> Dinámica de Asociación
+            </span>
+            <h2 class="text-2xl font-bold text-white mt-1">Juego de Memoria: Conceptos del Cap. 2</h2>
+          </div>
+          <div class="flex items-center gap-6">
+            <div class="text-right">
+              <span class="text-xs text-slate-400 uppercase font-bold">Intentos</span>
+              <p class="text-xl font-bold text-purple-400 font-mono" id="memory-moves">0</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-slate-400 uppercase font-bold">Parejas</span>
+              <p class="text-xl font-bold text-emerald-400 font-mono" id="memory-matches">0 / 6</p>
+            </div>
+            <button onclick="initMemoryGame()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded-lg border border-slate-600">
+              <i class="fa-solid fa-rotate-right mr-1"></i> Reiniciar
+            </button>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-400 my-2">Encuentra los pares asociando cada <b>concepto estratégico</b> con su correspondiente <b>definición clave</b>.</p>
+
+        <!-- Memory Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 my-auto h-[420px]" id="memory-grid">
+          <!-- Dynamic Memory Cards -->
+        </div>
+
+        <div class="text-xs text-slate-500 text-center pt-2">
+          Habilita la retención activa relacionando a los exponenetes y sus conceptos teóricos.
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE 4: FLASHCARDS (RAPID REVIEW) -->
+    <div id="mode-flashcards" class="hidden">
+      <div class="glass-card p-6 md:p-10 min-h-[600px] flex flex-col justify-between items-center">
+        <div class="w-full flex justify-between items-center pb-4 border-b border-slate-700">
+          <div>
+            <span class="badge bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <i class="fa-solid fa-bolt"></i> Tarjetas de Estudio Rápido
+            </span>
+            <h2 class="text-2xl font-bold text-white mt-1">Repaso de Conceptos Universitarios</h2>
+          </div>
+          <span class="text-xs text-emerald-400 font-mono font-bold" id="flashcard-counter">Tarjeta 1 de 6</span>
+        </div>
+
+        <!-- Flashcard View Component -->
+        <div class="w-full max-w-xl h-80 my-auto relative cursor-pointer group" onclick="flipFlashcard()">
+          <div class="flashcard w-full h-full relative" id="flashcard-element">
+            <!-- Front Card -->
+            <div class="flashcard-front glass-card border-2 border-slate-700 group-hover:border-emerald-500/50 transition-all text-center">
+              <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2" id="fc-front-speaker">Sub-Tema #1</span>
+              <h3 class="text-xl font-bold text-white mb-4" id="fc-front-title">Concepto o Pregunta Clave</h3>
+              <p class="text-xs text-slate-400"><i class="fa-solid fa-hand-pointer mr-1"></i> Haz clic para voltear la tarjeta</p>
+            </div>
+            <!-- Back Card -->
+            <div class="flashcard-back glass-card border-2 border-emerald-500 bg-emerald-950/40 text-center">
+              <span class="text-xs font-bold text-emerald-300 uppercase tracking-widest mb-2">Explicación Oficial</span>
+              <p class="text-sm text-slate-200 leading-relaxed font-medium mb-4" id="fc-back-text">Respuesta detallada de la tarjeta...</p>
+              <span class="text-[10px] text-emerald-400 font-mono" id="fc-back-ref">Fuente: Idalberto Chiavenato</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flashcard Navigation -->
+        <div class="flex items-center gap-4">
+          <button onclick="prevFlashcard()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-700">
+            <i class="fa-solid fa-chevron-left mr-2"></i> Anterior
+          </button>
+          <button onclick="flipFlashcard()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/30">
+            <i class="fa-solid fa-rotate mr-2"></i> Voltear Tarjeta
+          </button>
+          <button onclick="nextFlashcard()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-700">
+            Siguiente <i class="fa-solid fa-chevron-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Global Mode Switcher
+  function switchMode(mode) {
+    document.querySelectorAll('[id^="mode-"]').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById(`mode-${mode}`).classList.remove('hidden');
+    document.getElementById(`tab-${mode}`).classList.add('active');
+
+    if (mode === 'memory' && !memoryInitialized) {
+      initMemoryGame();
+    }
+  }
+
+  // --- 1. SLIDE PRESENTATION LOGIC ---
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  const slideCounter = document.getElementById('slideCounter');
+  const progressBar = document.getElementById('progressBar');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function updateSlide(index) {
+    slides.forEach((slide, idx) => {
+      if (idx === index) slide.classList.add('active');
+      else slide.classList.remove('active');
+    });
+    slideCounter.textContent = `${index + 1} / ${totalSlides}`;
+    progressBar.style.width = `${((index + 1) / totalSlides) * 100}%`;
+  }
+
+  prevBtn.addEventListener('click', () => { if (currentSlide > 0) { currentSlide--; updateSlide(currentSlide); } });
+  nextBtn.addEventListener('click', () => { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(currentSlide); } });
+
+  document.addEventListener('keydown', (e) => {
+    if (document.getElementById('mode-presentation').classList.contains('hidden')) return;
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(currentSlide); }
+    } else if (e.key === 'ArrowLeft') {
+      if (currentSlide > 0) { currentSlide--; updateSlide(currentSlide); }
+    }
+  });
+
+
+  // --- 2. LIVE QUIZ ("QUIZT") DATA & LOGIC ---
+  const quizData = [
+    {
+      speaker: "Cristine Medrano (Sub-Tema 1)",
+      question: "¿Cuál es el motor principal detrás del cambio acelerado en el escenario mundial según Chiavenato?",
+      options: [
+        "El aumento constante de aranceles de importación.",
+        "La globalización y la tecnología de la información que sustituyen el trabajo físico por el conocimiento.",
+        "La disminución de empresas multinacionales.",
+        "El retorno exclusivo al trabajo presencial obligatorio."
+      ],
+      correct: 1,
+      explanation: "Chiavenato destaca que la globalización y la era de la información han transformado la fuerza laboral orientándola hacia el trabajo intelectual y la agilidad."
+    },
+    {
+      speaker: "Jeremy Mejía (Sub-Tema 2)",
+      question: "¿Qué desafío enfrentan hoy los gerentes con la diversidad de la fuerza laboral?",
+      options: [
+        "Eliminar las contrataciones de jóvenes profesionales.",
+        "Integrar armónicamente múltiples generaciones con expectativas y estilos de trabajo distintos.",
+        "Estandarizar el horario laboral rígido para todos por igual.",
+        "Evitar la capacitación digital de los empleados."
+      ],
+      correct: 1,
+      explanation: "La convergencia de Baby Boomers, Gen X, Millennials y Gen Z exige modelos flexibles y comunicación adaptativa."
+    },
+    {
+      speaker: "Ashly Santana (Sub-Tema 3)",
+      question: "Cuando la GTH alinea las políticas de personal con la estrategia del negocio, ¿qué rol desempeña?",
+      options: [
+        "Experto Administrativo",
+        "Defensor del Empleado",
+        "Socio Estratégico",
+        "Agente de Cambio"
+      ],
+      correct: 2,
+      explanation: "Como Socio Estratégico, la GTH vincula los indicadores de talento con el logro de las metas competitivas corporativas."
+    },
+    {
+      speaker: "Leddy Batista (Sub-Tema 4)",
+      question: "¿Qué elementos integran el Capital Intelectual de una organización?",
+      options: [
+        "Solo los activos fijos y maquinaria industrial.",
+        "Capital Humano + Capital Estructural + Capital Relacional.",
+        "Únicamente los salarios pagados a los colaboradores.",
+        "Los presupuestos financieros del departamento contable."
+      ],
+      correct: 1,
+      explanation: "El Capital Intelectual combina las competencias del personal (Humano), los sistemas/patentes (Estructural) y la relación con el mercado (Relacional)."
+    },
+    {
+      speaker: "Harlin De La Cruz (Sub-Tema 5)",
+      question: "¿Quiénes son los Stakeholders (grupos de interés) a los que debe servir la GTH?",
+      options: [
+        "Únicamente al Director General (CEO).",
+        "Inversionistas, Empleados, Clientes y la Sociedad.",
+        "Solamente a los clientes externos.",
+        "A los proveedores de materias primas exclusivamente."
+      ],
+      correct: 1,
+      explanation: "La Gestión del Talento Humano moderna busca un equilibrio entre todos los socios clave de la empresa."
+    },
+    {
+      speaker: "Katty Magallanes (Sub-Temas 6 y 7)",
+      question: "¿Cuál es la diferencia clave entre el objeto y la propuesta de valor de la GTH?",
+      options: [
+        "No existe diferencia, significan exactamente lo mismo.",
+        "El objeto define qué construye (capital humano) y la propuesta de valor define el retorno estratégico al negocio.",
+        "El objeto es financiero y la propuesta de valor es legal.",
+        "La propuesta de valor solo aplica para empresas públicas."
+      ],
+      correct: 1,
+      explanation: "El objeto se centra en desarrollar las capacidades de las personas, mientras que la propuesta de valor garantiza una ventaja competitiva rentable."
+    }
+  ];
+
+  let currentQuizIdx = 0;
+  let quizScore = 0;
+  let quizStreak = 0;
+  let answered = false;
+
+  function loadQuizQuestion() {
+    answered = false;
+    const q = quizData[currentQuizIdx];
+    document.getElementById('quiz-question-num').textContent = `Pregunta ${currentQuizIdx + 1} de ${quizData.length}`;
+    document.getElementById('quiz-speaker-tag').textContent = q.speaker;
+    document.getElementById('quiz-question-text').textContent = q.question;
+    document.getElementById('quiz-feedback').classList.add('hidden');
+    document.getElementById('quiz-next-btn').classList.add('hidden');
+
+    const optionsContainer = document.getElementById('quiz-options');
+    optionsContainer.innerHTML = '';
+
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-option glass-card p-4 text-left text-sm font-medium text-slate-200 border border-slate-700/80 rounded-xl flex items-center gap-3 w-full';
+      btn.onclick = () => checkQuizAnswer(idx);
+      btn.innerHTML = `
+        <span class="w-7 h-7 rounded-lg bg-slate-800 text-sky-400 font-bold font-mono text-xs flex items-center justify-center shrink-0 border border-slate-600">
+          ${String.fromCharCode(65 + idx)}
+        </span>
+        <span>${opt}</span>
+      `;
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function checkQuizAnswer(selectedIdx) {
+    if (answered) return;
+    answered = true;
+
+    const q = quizData[currentQuizIdx];
+    const options = document.querySelectorAll('.quiz-option');
+    const feedbackBox = document.getElementById('quiz-feedback');
+    const feedbackText = document.getElementById('quiz-feedback-text');
+    const explanationText = document.getElementById('quiz-explanation');
+
+    if (selectedIdx === q.correct) {
+      options[selectedIdx].classList.add('correct');
+      quizScore += 100 + (quizStreak * 20);
+      quizStreak++;
+      feedbackBox.className = 'mt-6 p-4 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 block';
+      feedbackText.innerHTML = '<i class="fa-solid fa-circle-check mr-2"></i> ¡Correcto!';
+      
+      // Fire confetti effect on correct answer
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+      }
+    } else {
+      options[selectedIdx].classList.add('wrong');
+      options[q.correct].classList.add('correct');
+      quizStreak = 0;
+      feedbackBox.className = 'mt-6 p-4 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 block';
+      feedbackText.innerHTML = '<i class="fa-solid fa-circle-xmark mr-2"></i> Respuesta Incorrecta';
+    }
+
+    explanationText.textContent = q.explanation;
+    document.getElementById('quiz-score').textContent = quizScore;
+    document.getElementById('quiz-streak').textContent = `🔥 ${quizStreak}`;
+    document.getElementById('quiz-next-btn').classList.remove('hidden');
+  }
+
+  function nextQuizQuestion() {
+    currentQuizIdx++;
+    if (currentQuizIdx < quizData.length) {
+      loadQuizQuestion();
+    } else {
+      showQuizResults();
+    }
+  }
+
+  function showQuizResults() {
+    document.getElementById('quiz-results').classList.remove('hidden');
+    document.getElementById('final-score').textContent = quizScore;
+    let rating = "¡Excelente participación en la exposición!";
+    if (quizScore < 300) rating = "Buen intento, repasa los conceptos clave con las diapositivas.";
+    document.getElementById('final-rating').textContent = rating;
+  }
+
+  function restartQuiz() {
+    currentQuizIdx = 0;
+    quizScore = 0;
+    quizStreak = 0;
+    document.getElementById('quiz-score').textContent = '0';
+    document.getElementById('quiz-streak').textContent = '🔥 0';
+    document.getElementById('quiz-results').classList.add('hidden');
+    loadQuizQuestion();
+  }
+
+
+  // --- 3. MEMORY MATCHING GAME LOGIC ---
+  const memoryItems = [
+    { id: 1, text: "Socio Estratégico", matchId: 1, isConcept: true },
+    { id: 1, text: "Alinea el talento a los objetivos del negocio", matchId: 1, isConcept: false },
+    { id: 2, text: "Capital Humano", matchId: 2, isConcept: true },
+    { id: 2, text: "Conocimientos y competencias de las personas", matchId: 2, isConcept: false },
+    { id: 3, text: "Entorno VUCA", matchId: 3, isConcept: true },
+    { id: 3, text: "Volatilidad, Incertidumbre, Complejidad y Ambigüedad", matchId: 3, isConcept: false },
+    { id: 4, text: "Stakeholders", matchId: 4, isConcept: true },
+    { id: 4, text: "Inversionistas, Empleados, Clientes y Sociedad", matchId: 4, isConcept: false },
+    { id: 5, text: "Capital Estructural", matchId: 5, isConcept: true },
+    { id: 5, text: "Sistemas, patentes y cultura de la empresa", matchId: 5, isConcept: false },
+    { id: 6, text: "Propuesta de Valor", matchId: 6, isConcept: true },
+    { id: 6, text: "Ventaja competitiva sostenible vía personas", matchId: 6, isConcept: false }
+  ];
+
+  let memoryInitialized = false;
+  let flippedCards = [];
+  let matchedPairs = 0;
+  let moves = 0;
+
+  function initMemoryGame() {
+    memoryInitialized = true;
+    flippedCards = [];
+    matchedPairs = 0;
+    moves = 0;
+    document.getElementById('memory-moves').textContent = '0';
+    document.getElementById('memory-matches').textContent = '0 / 6';
+
+    const grid = document.getElementById('memory-grid');
+    grid.innerHTML = '';
+
+    // Shuffle cards
+    const shuffled = [...memoryItems].sort(() => Math.random() - 0.5);
+
+    shuffled.forEach((item, index) => {
+      const card = document.createElement('div');
+      card.className = 'memory-card h-full';
+      card.dataset.matchId = item.matchId;
+      card.dataset.index = index;
+
+      card.innerHTML = `
+        <div class="memory-card-inner">
+          <div class="memory-card-front">
+            <i class="fa-solid fa-brain"></i>
+          </div>
+          <div class="memory-card-back text-xs font-bold font-['Plus_Jakarta_Sans']">
+            ${item.text}
+          </div>
+        </div>
+      `;
+
+      card.onclick = () => onCardClick(card);
+      grid.appendChild(card);
+    });
+  }
+
+  function onCardClick(card) {
+    if (card.classList.contains('flipped') || card.classList.contains('matched') || flippedCards.length === 2) return;
+
+    card.classList.add('flipped');
+    flippedCards.push(card);
+
+    if (flippedCards.length === 2) {
+      moves++;
+      document.getElementById('memory-moves').textContent = moves;
+
+      const card1 = flippedCards[0];
+      const card2 = flippedCards[1];
+
+      if (card1.dataset.matchId === card2.dataset.matchId) {
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+        matchedPairs++;
+        document.getElementById('memory-matches').textContent = `${matchedPairs} / 6`;
+        flippedCards = [];
+
+        if (matchedPairs === 6 && typeof confetti === 'function') {
+          confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+        }
+      } else {
+        setTimeout(() => {
+          card1.classList.remove('flipped');
+          card2.classList.remove('flipped');
+          flippedCards = [];
+        }, 1000);
+      }
+    }
+  }
+
+
+  // --- 4. FLASHCARDS LOGIC ---
+  const flashcardData = [
+    {
+      speaker: "Cristine Medrano · Sub-Tema #1",
+      title: "¿Qué caracteriza a la era de la información?",
+      text: "El paso del trabajo manual al trabajo del conocimiento, la digitalización acelerada y la interconexión global en tiempo real.",
+      ref: "Libro Chiavenato - Cap. 2 (Pág. 38)"
+    },
+    {
+      speaker: "Jeremy Mejía · Sub-Tema #2",
+      title: "¿Por qué el aprendizaje continuo es crucial hoy?",
+      text: "Porque la rápida obsolescencia del conocimiento exige constantes procesos de upskilling y reskilling para mantener la competitividad.",
+      ref: "Libro Chiavenato - Cap. 2 (Pág. 42)"
+    },
+    {
+      speaker: "Ashly Santana · Sub-Tema #3",
+      title: "¿Qué significa ser 'Agente de Cambio' en GTH?",
+      text: "Significa impulsar activamente la transformación cultural, la capacidad de innovación y la adaptación organizacional frente a nuevos retos.",
+      ref: "Libro Chiavenato - Cap. 2 (Pág. 47)"
+    },
+    {
+      speaker: "Leddy Batista · Sub-Tema #4",
+      title: "¿Cuál es la diferencia entre Capital Humano y Estructural?",
+      text: "El Capital Humano pertenece a las personas (sus saberes) y se va con ellas; el Capital Estructural pertenece a la empresa (procesos, marcas, patentes).",
+      ref: "Libro Chiavenato - Cap. 2 (Pág. 51)"
+    },
+    {
+      speaker: "Harlin De La Cruz · Sub-Tema #5",
+      title: "¿Qué buscan los colaboradores como Stakeholders?",
+      text: "Buscan calidad de vida laboral, remuneración justa, desarrollo profesional, reconocimiento y estabilidad.",
+      ref: "Libro Chiavenato - Cap. 2 (Pág. 55)"
+    },
+    {
+      speaker: "Katty Magallanes · Sub-Temas #6 y #7",
+      title: "¿Cuál es la propuesta de valor fundamental de la GTH?",
+      text: "Crear una ventaja competitiva sostenible integrando el talento con los objetivos de negocio para generar retornos medibles.",
+      ref: "Libro Chiavenato - Cap. 2 (Pág. 60)"
+    }
+  ];
+
+  let currentFCIdx = 0;
+
+  function updateFlashcard() {
+    const fc = flashcardData[currentFCIdx];
+    const fcElement = document.getElementById('flashcard-element');
+    fcElement.classList.remove('flipped');
+
+    document.getElementById('flashcard-counter').textContent = `Tarjeta ${currentFCIdx + 1} de ${flashcardData.length}`;
+    document.getElementById('fc-front-speaker').textContent = fc.speaker;
+    document.getElementById('fc-front-title').textContent = fc.title;
+    document.getElementById('fc-back-text').textContent = fc.text;
+    document.getElementById('fc-back-ref').textContent = fc.ref;
+  }
+
+  function flipFlashcard() {
+    document.getElementById('flashcard-element').classList.toggle('flipped');
+  }
+
+  function prevFlashcard() {
+    if (currentFCIdx > 0) { currentFCIdx--; updateFlashcard(); }
+  }
+
+  function nextFlashcard() {
+    if (currentFCIdx < flashcardData.length - 1) { currentFCIdx++; updateFlashcard(); }
+  }
+
+
+  // Initialize Apps on load
+  window.onload = function() {
+    updateSlide(0);
+    loadQuizQuestion();
+    updateFlashcard();
+  };
+</script>
+
+</body>
+</html>
